@@ -1,7 +1,6 @@
 package io.github.z3r0c00l_2k.aquadroid
 
 import android.content.SharedPreferences
-import android.database.Cursor
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.Toast
@@ -17,6 +16,9 @@ import io.github.z3r0c00l_2k.aquadroid.helpers.SqliteHelper
 import io.github.z3r0c00l_2k.aquadroid.utils.AppUtils
 import io.github.z3r0c00l_2k.aquadroid.utils.ChartXValueFormatter
 import kotlinx.android.synthetic.main.activity_stats.*
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.max
 
 
@@ -33,27 +35,40 @@ class StatsActivity : AppCompatActivity() {
 
         sharedPref = getSharedPreferences(AppUtils.USERS_SHARED_PREF, AppUtils.PRIVATE_MODE)
         sqliteHelper = SqliteHelper(this)
+        val wakeUpTime = sharedPref.getLong(AppUtils.WAKEUP_TIME, 0)
+        val sleepingTime = sharedPref.getLong(AppUtils.SLEEPING_TIME_KEY, 0)
 
         btnBack.setOnClickListener {
             finish()
         }
 
-        val entries = ArrayList<Entry>()
+        var entries = ArrayList<Entry>()
         val dateArray = ArrayList<String>()
 
-        val cursor: Cursor = sqliteHelper.getAllStats()
+//        val cursor: Cursor = sqliteHelper.getAllStats()
 
-        if (cursor.moveToFirst()) {
-
-            for (i in 0 until cursor.count) {
-                dateArray.add(cursor.getString(1))
-                val percent = cursor.getInt(2) / cursor.getInt(3).toFloat() * 100
-                totalPercentage += percent
-                totalGlasses += cursor.getInt(2)
-                entries.add(Entry(i.toFloat(), percent))
-                cursor.moveToNext()
-            }
-
+        var start = Calendar.getInstance()
+        var end = Calendar.getInstance()
+        start.roll(Calendar.DAY_OF_YEAR, -7)
+        val values = sqliteHelper.getStatsInRange(start.time, end.time, wakeUpTime, sleepingTime)
+        for (day in start.time.time..end.time.time step 86400000){
+            val c = Calendar.getInstance()
+            c.timeInMillis = day
+            dateArray.add(SimpleDateFormat("dd-MM").format(c.time))
+        }
+        if (values.size > 0){
+            entries = values
+//        if (cursor.moveToFirst()) {
+//
+//            for (i in 0 until cursor.count) {
+//                dateArray.add(cursor.getString(1))
+//                val percent = cursor.getInt(2) / cursor.getInt(3).toFloat() * 100
+//                totalPercentage += percent
+//                totalGlasses += cursor.getInt(2)
+//                entries.add(Entry(i.toFloat(), percent))
+//                cursor.moveToNext()
+//            }
+//
         } else {
             Toast.makeText(this, "Empty", Toast.LENGTH_LONG).show()
         }
@@ -108,10 +123,11 @@ class StatsActivity : AppCompatActivity() {
             chart.data = lineData
             chart.invalidate()
 
+
             val remaining = sharedPref.getInt(
                 AppUtils.TOTAL_INTAKE,
                 0
-            ) - sqliteHelper.getIntook(AppUtils.getCurrentDate()!!)
+            ) - sqliteHelper.getIntook(AppUtils.getCurrentDate()!!, wakeUpTime, sleepingTime)
 
             if (remaining > 0) {
                 remainingIntake.text = "$remaining ml"
@@ -125,7 +141,7 @@ class StatsActivity : AppCompatActivity() {
             )
             } ml"
 
-            val percentage = sqliteHelper.getIntook(AppUtils.getCurrentDate()!!) * 100 / sharedPref.getInt(
+            val percentage = sqliteHelper.getIntook(AppUtils.getCurrentDate()!!, wakeUpTime, sleepingTime) * 100 / sharedPref.getInt(
                 AppUtils.TOTAL_INTAKE,
                 0
             )

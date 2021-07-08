@@ -99,7 +99,7 @@ class NotificationHelper(val ctx: Context) {
         if (startTimestamp == 0L || stopTimestamp == 0L || totalIntake == 0)
             return false
 
-        val percent = sqliteHelper.getIntook(AppUtils.getCurrentDate()!!) * 100 / totalIntake
+        val percent = sqliteHelper.getIntook(AppUtils.getCurrentDate()!!, startTimestamp, stopTimestamp) * 100 / totalIntake
 
         val now = Calendar.getInstance().time
 

@@ -236,7 +236,9 @@ class BottomSheetFragment(val mCtx: Context) : BottomSheetDialogFragment() {
 
                         sqliteHelper.updateTotalIntake(
                             AppUtils.getCurrentDate()!!,
-                            customTarget.toInt()
+                            customTarget.toInt(),
+                            wakeupTime,
+                            sleepingTime
                         )
                     } else {
                         val totalIntake = AppUtils.calculateIntake(weight.toInt(), workTime.toInt())
@@ -246,7 +248,9 @@ class BottomSheetFragment(val mCtx: Context) : BottomSheetDialogFragment() {
 
                         sqliteHelper.updateTotalIntake(
                             AppUtils.getCurrentDate()!!,
-                            df.format(totalIntake).toInt()
+                            df.format(totalIntake).toInt(),
+                            wakeupTime,
+                            sleepingTime
                         )
                     }
 

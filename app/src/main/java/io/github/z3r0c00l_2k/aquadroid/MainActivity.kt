@@ -58,8 +58,9 @@ class MainActivity : AppCompatActivity() {
 
     fun updateValues() {
         totalIntake = sharedPref.getInt(AppUtils.TOTAL_INTAKE, 0)
-
-        inTook = sqliteHelper.getIntook(dateNow)
+        val wakeUpTime = sharedPref.getLong(AppUtils.WAKEUP_TIME, 800)
+        val sleepingTime = sharedPref.getLong(AppUtils.SLEEPING_TIME_KEY,2300)
+        inTook = sqliteHelper.getIntook(AppUtils.getCurrentDate()!!, wakeUpTime, sleepingTime)
 
         setWaterLevel(inTook, totalIntake)
     }
@@ -102,7 +103,7 @@ class MainActivity : AppCompatActivity() {
         fabAdd.setOnClickListener {
             if (selectedOption != null) {
                 if ((inTook * 100 / totalIntake) <= 140) {
-                    if (sqliteHelper.addIntook(dateNow, selectedOption!!) > 0) {
+                    if (sqliteHelper.addIntook(AppUtils.getCurrentDateTime(), selectedOption!!, totalIntake) > 0) {
                         inTook += selectedOption!!
                         setWaterLevel(inTook, totalIntake)
 

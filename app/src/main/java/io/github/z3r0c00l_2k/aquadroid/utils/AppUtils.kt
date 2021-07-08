@@ -1,6 +1,7 @@
 package io.github.z3r0c00l_2k.aquadroid.utils
 
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 import java.util.*
 
 
@@ -16,6 +17,19 @@ class AppUtils {
             val c = Calendar.getInstance().time
             val df = SimpleDateFormat("dd-MM-yyyy")
             return df.format(c)
+        }
+
+        fun getCurrentDateTime(): String {
+            val c = Calendar.getInstance().time
+            return formatDateIso8601(c)
+        }
+        fun formatDateIso8601(datetime: Date): String{
+            val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+            return df.format(datetime)
+        }
+        fun formatTime(datetime: Date) : String{
+            val df = SimpleDateFormat("HH:mm")
+            return df.format(datetime)
         }
 
         val USERS_SHARED_PREF = "user_pref"
