@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, InitUserInfoActivity::class.java))
             finish()
         }
+        updateLabels()
 
         dateNow = AppUtils.getCurrentDate()!!
 
@@ -159,7 +160,7 @@ class MainActivity : AppCompatActivity() {
             if (snackbar != null) {
                 snackbar?.dismiss()
             }
-            selectedOption = 50
+            selectedOption = sharedPref.getInt(AppUtils.QUICK_INTAKE_1, 50)
             op50ml.background = getDrawable(R.drawable.option_select_bg)
             op100ml.background = getDrawable(outValue.resourceId)
             op150ml.background = getDrawable(outValue.resourceId)
@@ -168,12 +169,17 @@ class MainActivity : AppCompatActivity() {
             opCustom.background = getDrawable(outValue.resourceId)
 
         }
+        op50ml.setOnLongClickListener {
+
+            onLongClickListener(AppUtils.QUICK_INTAKE_1)
+            true
+        }
 
         op100ml.setOnClickListener {
             if (snackbar != null) {
                 snackbar?.dismiss()
             }
-            selectedOption = 100
+            selectedOption = sharedPref.getInt(AppUtils.QUICK_INTAKE_2, 100)
             op50ml.background = getDrawable(outValue.resourceId)
             op100ml.background = getDrawable(R.drawable.option_select_bg)
             op150ml.background = getDrawable(outValue.resourceId)
@@ -183,11 +189,16 @@ class MainActivity : AppCompatActivity() {
 
         }
 
+        op100ml.setOnLongClickListener {
+            onLongClickListener(AppUtils.QUICK_INTAKE_2)
+            true
+        }
+
         op150ml.setOnClickListener {
             if (snackbar != null) {
                 snackbar?.dismiss()
             }
-            selectedOption = 150
+            selectedOption = sharedPref.getInt(AppUtils.QUICK_INTAKE_3, 150)
             op50ml.background = getDrawable(outValue.resourceId)
             op100ml.background = getDrawable(outValue.resourceId)
             op150ml.background = getDrawable(R.drawable.option_select_bg)
@@ -196,12 +207,16 @@ class MainActivity : AppCompatActivity() {
             opCustom.background = getDrawable(outValue.resourceId)
 
         }
+        op150ml.setOnLongClickListener {
+            onLongClickListener(AppUtils.QUICK_INTAKE_3)
+            true
+        }
 
         op200ml.setOnClickListener {
             if (snackbar != null) {
                 snackbar?.dismiss()
             }
-            selectedOption = 200
+            selectedOption = sharedPref.getInt(AppUtils.QUICK_INTAKE_4, 200)
             op50ml.background = getDrawable(outValue.resourceId)
             op100ml.background = getDrawable(outValue.resourceId)
             op150ml.background = getDrawable(outValue.resourceId)
@@ -210,12 +225,16 @@ class MainActivity : AppCompatActivity() {
             opCustom.background = getDrawable(outValue.resourceId)
 
         }
+        op200ml.setOnLongClickListener {
+            onLongClickListener(AppUtils.QUICK_INTAKE_4)
+            true
+        }
 
         op250ml.setOnClickListener {
             if (snackbar != null) {
                 snackbar?.dismiss()
             }
-            selectedOption = 250
+            selectedOption = sharedPref.getInt(AppUtils.QUICK_INTAKE_5, 250)
             op50ml.background = getDrawable(outValue.resourceId)
             op100ml.background = getDrawable(outValue.resourceId)
             op150ml.background = getDrawable(outValue.resourceId)
@@ -223,6 +242,10 @@ class MainActivity : AppCompatActivity() {
             op250ml.background = getDrawable(R.drawable.option_select_bg)
             opCustom.background = getDrawable(outValue.resourceId)
 
+        }
+        op250ml.setOnLongClickListener {
+            onLongClickListener(AppUtils.QUICK_INTAKE_5)
+            true
         }
 
         opCustom.setOnClickListener {
@@ -263,7 +286,49 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun onLongClickListener(sharedPrefName: String){
+        if (snackbar != null) {
+            snackbar?.dismiss()
+        }
 
+        val li = LayoutInflater.from(this)
+        val promptsView = li.inflate(R.layout.custom_input_dialog, null)
+
+        val alertDialogBuilder = AlertDialog.Builder(this)
+        alertDialogBuilder.setView(promptsView)
+
+        val userInput = promptsView
+            .findViewById(R.id.etCustomInput) as TextInputLayout
+
+        alertDialogBuilder.setPositiveButton("OK") { dialog, id ->
+            val inputText = userInput.editText!!.text.toString()
+            if (!TextUtils.isEmpty(inputText) && inputText.toIntOrNull() != null) {
+                var newValue = inputText.toInt()
+                var editor = sharedPref.edit()
+                editor.putInt(sharedPrefName, newValue)
+                editor.commit()
+                updateLabels()
+            }
+        }.setNegativeButton("Cancel") { dialog, id ->
+            dialog.cancel()
+        }
+
+        val alertDialog = alertDialogBuilder.create()
+        alertDialog.show()
+    }
+
+    private fun updateLabels(){
+        var quickIntake1 = sharedPref.getInt(AppUtils.QUICK_INTAKE_1, 50)
+        op50mlText.setText("$quickIntake1 ml")
+        var quickIntake2 = sharedPref.getInt(AppUtils.QUICK_INTAKE_2, 100)
+        op100mlText.setText("$quickIntake2 ml")
+        var quickIntake3 = sharedPref.getInt(AppUtils.QUICK_INTAKE_3, 150)
+        op150mlText.setText("$quickIntake3 ml")
+        var quickIntake4 = sharedPref.getInt(AppUtils.QUICK_INTAKE_4, 200)
+        op200mlText.setText("$quickIntake4 ml")
+        var quickIntake5 = sharedPref.getInt(AppUtils.QUICK_INTAKE_5, 250)
+        op250mlText.setText("$quickIntake5 ml")
+    }
     private fun setWaterLevel(inTook: Int, totalIntake: Int) {
 
         YoYo.with(Techniques.SlideInDown)

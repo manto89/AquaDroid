@@ -30,5 +30,11 @@ class AppUtils {
         val WAKEUP_TIME = "wakeuptime"
         val NOTIFICATION_TONE_URI_KEY = "notificationtone"
         val FIRST_RUN_KEY = "firstrun"
+        val QUICK_INTAKE_1 = "intake1"
+        val QUICK_INTAKE_2 = "intake2"
+        val QUICK_INTAKE_3 = "intake3"
+        val QUICK_INTAKE_4 = "intake4"
+        val QUICK_INTAKE_5 = "intake5"
+
     }
 }
