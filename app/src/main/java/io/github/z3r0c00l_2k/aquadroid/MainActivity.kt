@@ -3,6 +3,7 @@ package io.github.z3r0c00l_2k.aquadroid
 import android.app.NotificationManager
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.text.TextUtils
@@ -253,6 +254,13 @@ class MainActivity : AppCompatActivity() {
             if (snackbar != null) {
                 snackbar?.dismiss()
             }
+            val oldStatus = arrayListOf<Drawable>()
+            oldStatus.add(op50ml.background)
+            oldStatus.add(op100ml.background)
+            oldStatus.add(op150ml.background)
+            oldStatus.add(op200ml.background)
+            oldStatus.add(op250ml.background)
+            oldStatus.add(opCustom.background)
 
             val li = LayoutInflater.from(this)
             val promptsView = li.inflate(R.layout.custom_input_dialog, null)
@@ -271,6 +279,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }.setNegativeButton("Cancel") { dialog, id ->
                 dialog.cancel()
+                op50ml.background = oldStatus[0]
+                op100ml.background = oldStatus[1]
+                op150ml.background = oldStatus[2]
+                op200ml.background = oldStatus[3]
+                op250ml.background = oldStatus[4]
+                opCustom.background = oldStatus[5]
             }
 
             val alertDialog = alertDialogBuilder.create()
