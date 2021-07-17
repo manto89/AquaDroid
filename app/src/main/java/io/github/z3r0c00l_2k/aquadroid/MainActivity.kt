@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         totalIntake = sharedPref.getInt(AppUtils.TOTAL_INTAKE, 0)
         val wakeUpTime = sharedPref.getLong(AppUtils.WAKEUP_TIME, 800)
         val sleepingTime = sharedPref.getLong(AppUtils.SLEEPING_TIME_KEY,2300)
-        inTook = sqliteHelper.getIntook(AppUtils.getCurrentDate()!!, wakeUpTime, sleepingTime)
+        inTook = sqliteHelper.getIntook(AppUtils.getCurrentDate()!!, sleepingTime)
 
         setWaterLevel(inTook, totalIntake)
     }

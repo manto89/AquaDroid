@@ -50,7 +50,7 @@ class StatsActivity : AppCompatActivity() {
         var start = Calendar.getInstance()
         var end = Calendar.getInstance()
         start.roll(Calendar.DAY_OF_YEAR, -7)
-        val values = sqliteHelper.getStatsInRange(start.time, end.time, wakeUpTime, sleepingTime)
+        val values = sqliteHelper.getStatsInRange(start.time, end.time, sleepingTime)
         for (day in start.time.time..end.time.time step 86400000){
             val c = Calendar.getInstance()
             c.timeInMillis = day
@@ -58,17 +58,6 @@ class StatsActivity : AppCompatActivity() {
         }
         if (values.size > 0){
             entries = values
-//        if (cursor.moveToFirst()) {
-//
-//            for (i in 0 until cursor.count) {
-//                dateArray.add(cursor.getString(1))
-//                val percent = cursor.getInt(2) / cursor.getInt(3).toFloat() * 100
-//                totalPercentage += percent
-//                totalGlasses += cursor.getInt(2)
-//                entries.add(Entry(i.toFloat(), percent))
-//                cursor.moveToNext()
-//            }
-//
         } else {
             Toast.makeText(this, "Empty", Toast.LENGTH_LONG).show()
         }
@@ -127,7 +116,7 @@ class StatsActivity : AppCompatActivity() {
             val remaining = sharedPref.getInt(
                 AppUtils.TOTAL_INTAKE,
                 0
-            ) - sqliteHelper.getIntook(AppUtils.getCurrentDate()!!, wakeUpTime, sleepingTime)
+            ) - sqliteHelper.getIntook(AppUtils.getCurrentDate()!!, sleepingTime)
 
             if (remaining > 0) {
                 remainingIntake.text = "$remaining ml"
@@ -141,7 +130,7 @@ class StatsActivity : AppCompatActivity() {
             )
             } ml"
 
-            val percentage = sqliteHelper.getIntook(AppUtils.getCurrentDate()!!, wakeUpTime, sleepingTime) * 100 / sharedPref.getInt(
+            val percentage = sqliteHelper.getIntook(AppUtils.getCurrentDate()!!, sleepingTime) * 100 / sharedPref.getInt(
                 AppUtils.TOTAL_INTAKE,
                 0
             )

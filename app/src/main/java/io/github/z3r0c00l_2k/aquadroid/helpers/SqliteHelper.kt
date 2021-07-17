@@ -59,23 +59,36 @@ class SqliteHelper(val context: Context) : SQLiteOpenHelper(
         return -1
     }
 
-    fun getIntook(date: String, wakeUpTime: Long, sleepingTime: Long ): Int {
+    fun getRequestedDate(date: String, endOfDay: Long): Date{
+
         val requestedDate = SimpleDateFormat("dd-MM-yyyy").parse(date)
-        val wakeUpTimeString = AppUtils.formatTime(Date(wakeUpTime))
-        val wakeUpFormatted = SimpleDateFormat("yyyy-MM-dd").format(requestedDate.time).plus("T").plus(wakeUpTimeString)
-        val sleepingTimeString = AppUtils.formatTime(Date(sleepingTime))
-        var sleepingTimeFormatted = SimpleDateFormat("yyyy-MM-dd").format(requestedDate.time).plus("T").plus(sleepingTimeString)
-        if (sleepingTime < wakeUpTime){
-            var c = Calendar.getInstance()
-            c.time = requestedDate
-            c.set(Calendar.DAY_OF_YEAR, c.get(Calendar.DAY_OF_YEAR) + 1)
-            val sleepingDayFormatted = SimpleDateFormat("yyyy-MM-dd").format(c.time)
-            sleepingTimeFormatted = sleepingDayFormatted.plus("T").plus(sleepingTimeString)
+        val now = Calendar.getInstance()
+        val endOfDayIsBeforeMidnight = AppUtils.isBeforeMidnight(Date(endOfDay))
+        val nowIsBeforeMidnight = AppUtils.isBeforeMidnight(now.time)
+//        val secondsToMidnight = AppUtils.differenceInSeconds(now.time, SimpleDateFormat("HH:mm").parse("00:00"))
+        val secondsToEndOfDay = AppUtils.differenceInSeconds(now.time,Date(endOfDay))
+        //If somebody sleeps after midnight and now is between midnight and his/hers sleeping time
+        //Go back one day
+        if(!endOfDayIsBeforeMidnight && !nowIsBeforeMidnight && secondsToEndOfDay > 0 ){
+            requestedDate.time = requestedDate.time - 86400000
         }
+        return requestedDate
+    }
+
+    fun getIntook(date: String, endOfDay: Long ): Int {
+        val requestedDate = getRequestedDate(date, endOfDay)
+        val endOfDayFormatted = AppUtils.getEndOfDayTimeString(Date(endOfDay))
+//        val endOfDayFormatted = AppUtils.formatTime(Date(endOfDay))
+        var startDateTimeFormatted = SimpleDateFormat("yyyy-MM-dd").format(requestedDate.time).plus("T").plus(endOfDayFormatted)
+        val c = Calendar.getInstance()
+        c.time = requestedDate
+        c.set(Calendar.DAY_OF_YEAR, c.get(Calendar.DAY_OF_YEAR) + 1)
+        val endDateFormatted = SimpleDateFormat("yyyy-MM-dd").format(c.time)
+        val endDateTimeFormatted = endDateFormatted.plus("T").plus(endOfDayFormatted)
         val selectQuery = "SELECT $KEY_INTOOK FROM $TABLE_STATS WHERE $KEY_DATE BETWEEN ? AND ?"
         val db = this.readableDatabase
         var ret = 0
-        db.rawQuery(selectQuery, arrayOf(wakeUpFormatted, sleepingTimeFormatted)).use {
+        db.rawQuery(selectQuery, arrayOf(startDateTimeFormatted, endDateTimeFormatted)).use {
             if (it.moveToFirst()) {
                 for (i in 0 until it.count){
                     ret += it.getInt(it.getColumnIndex(KEY_INTOOK))
@@ -86,24 +99,21 @@ class SqliteHelper(val context: Context) : SQLiteOpenHelper(
         return ret
     }
 
-    fun getTotalIntake(date: String, wakeUpTime: Long, sleepingTime: Long): Int{
+    fun getTotalIntake(date: String, endOfDay: Long): Int{
 
-        val requestedDate = SimpleDateFormat("dd-MM-yyyy").parse(date)
-        val wakeUpTimeString = AppUtils.formatTime(Date(wakeUpTime))
-        val wakeUpFormatted = SimpleDateFormat("yyyy-MM-dd").format(requestedDate.time).plus("T").plus(wakeUpTimeString)
-        val sleepingTimeString = AppUtils.formatTime(Date(sleepingTime))
-        var sleepingTimeFormatted = SimpleDateFormat("yyyy-MM-dd").format(requestedDate.time).plus("T").plus(sleepingTimeString)
-        if (sleepingTime < wakeUpTime){
-            var c = Calendar.getInstance()
-            c.time = requestedDate
-            c.set(Calendar.DAY_OF_YEAR, c.get(Calendar.DAY_OF_YEAR) + 1)
-            val sleepingDayFormatted = SimpleDateFormat("yyyy-MM-dd").format(c.time)
-            sleepingTimeFormatted = sleepingDayFormatted.plus("T").plus(sleepingTimeString)
-        }
+        val requestedDate = getRequestedDate(date, endOfDay)
+//        val endOfDayTimeString = AppUtils.formatTime(Date(endOfDay))
+        val endOfDayTimeString = AppUtils.getEndOfDayTimeString(Date(endOfDay))
+        val startDateTimeFormatted = SimpleDateFormat("yyyy-MM-dd").format(requestedDate.time).plus("T").plus(endOfDayTimeString)
+        var c = Calendar.getInstance()
+        c.time = requestedDate
+        c.set(Calendar.DAY_OF_YEAR, c.get(Calendar.DAY_OF_YEAR) + 1)
+        val endDateFormatted = SimpleDateFormat("yyyy-MM-dd").format(c.time)
+        val endDateTimeFormatted = endDateFormatted.plus("T").plus(endOfDayTimeString)
         val selectQuery = "SELECT MAX($KEY_TOTAL_INTAKE) FROM $TABLE_STATS WHERE $KEY_DATE BETWEEN ? AND ?"
         val db = this.readableDatabase
         var ret = 0
-        db.rawQuery(selectQuery, arrayOf(wakeUpFormatted, sleepingTimeFormatted)).use {
+        db.rawQuery(selectQuery, arrayOf(startDateTimeFormatted, endDateTimeFormatted)).use {
             if (it.moveToFirst()) {
                 ret += it.getInt(0)
 //                for (i in 0 until it.count){
@@ -145,7 +155,7 @@ class SqliteHelper(val context: Context) : SQLiteOpenHelper(
         return 0
     }
 
-    fun getStatsInRange(start: Date, end: Date, wakeUpTime: Long, sleepingTime: Long): ArrayList<Entry>{
+    fun getStatsInRange(start: Date, end: Date, sleepingTime: Long): ArrayList<Entry>{
 
 //        var s = Calendar.getInstance()
 //        s.time = start
@@ -159,8 +169,8 @@ class SqliteHelper(val context: Context) : SQLiteOpenHelper(
         for (i in start.time..end.time step 86400000){
             val c = Calendar.getInstance()
             c.timeInMillis = i
-            val intook = getIntook(SimpleDateFormat("dd-MM-yyyy").format(c.time), wakeUpTime, sleepingTime)
-            val total = getTotalIntake(SimpleDateFormat("dd-MM-yyyy").format(c.time),wakeUpTime, sleepingTime)
+            val intook = getIntook(SimpleDateFormat("dd-MM-yyyy").format(c.time), sleepingTime)
+            val total = getTotalIntake(SimpleDateFormat("dd-MM-yyyy").format(c.time),sleepingTime)
             var percentage = 0.0f
             if(total > 0){
                 percentage = (intook/total.toFloat()) * 100
@@ -178,8 +188,8 @@ class SqliteHelper(val context: Context) : SQLiteOpenHelper(
 
     }
 
-    fun updateTotalIntake(date: String, totalintake: Int, wakeUpTime: Long, sleepingTime: Long): Int {
-        val intook = getIntook(date, wakeUpTime, sleepingTime)
+    fun updateTotalIntake(date: String, totalintake: Int, sleepingTime: Long): Int {
+        val intook = getIntook(date, sleepingTime)
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put(KEY_TOTAL_INTAKE, totalintake)
