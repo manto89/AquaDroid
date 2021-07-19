@@ -23,6 +23,7 @@ class AppUtils {
             val c = Calendar.getInstance().time
             return formatDateIso8601(c)
         }
+
         fun formatDateIso8601(datetime: Date): String{
             val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
             return df.format(datetime)

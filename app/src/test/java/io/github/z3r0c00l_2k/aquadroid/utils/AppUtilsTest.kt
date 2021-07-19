@@ -103,4 +103,54 @@ class AppUtilsTest{
         }
 
     }
+    @Nested
+    @KotlinParametrizedTest
+    @DisplayName("isBeforeMidnight: ")
+    inner class IsBeforeMidnightTest{
+
+        fun data() : Iterable<Array<Any>>{
+            return arrayListOf(
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:00:00"),
+                    false
+                ),
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 23:00:00"),
+                    true
+                ),
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:00:01"),
+                    false
+                ),
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 23:59:59"),
+                    true
+                ),
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:01:00"),
+                    false
+                ),
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 23:59:00"),
+                    true
+                ),
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 22:00:00"),
+                    true
+                ),
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 01:00:00"),
+                    false
+                )
+            )
+        }
+
+        @ParameterizedTest
+        @MethodSource("data")
+        @DisplayName("given valid Date when called then results are correct")
+        fun isBeforeMidnightTest(date: Date, expectedResult: Boolean){
+            var result = AppUtils.isBeforeMidnight(date)
+            Assert.assertEquals(expectedResult, result)
+        }
+    }
 }
