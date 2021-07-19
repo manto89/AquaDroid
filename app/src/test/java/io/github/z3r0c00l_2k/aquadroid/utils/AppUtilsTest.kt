@@ -27,6 +27,26 @@ class AppUtilsTest{
                     SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:02:00"),
                     SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:01:00"),
                     -60
+                ),
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:00:00"),
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 01:00:00"),
+                    3600
+                ),
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 01:00:00"),
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:00:00"),
+                    -3600
+                ),
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:00:00"),
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:00:01"),
+                    1
+                ),
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:00:01"),
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:00:00"),
+                    -1
                 )
             )
         }
@@ -42,6 +62,26 @@ class AppUtilsTest{
                     SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-17 23:59:00"),
                     SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:00:00"),
                     -((23 * 3600) + (59 * 60))
+                ),
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:00:00"),
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-17 23:00:00"),
+                    (23 * 3600)
+                ),
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-17 23:00:00"),
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:00:00"),
+                    -(23 * 3600)
+                ),
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:00:00"),
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-17 23:59:59"),
+                    (23 * 3600) + (59 * 60) + 59
+                ),
+                arrayOf(
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-17 23:59:59"),
+                    SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse("2021-07-18 00:00:00"),
+                    -((23 * 3600) + (59 * 60) + 59)
                 )
             )
         }
@@ -52,7 +92,6 @@ class AppUtilsTest{
         fun sameDayDifferenceInSecondsTest(first: Date, second: Date, expectedDifference: Int) {
             val difference = AppUtils.differenceInSeconds(first, second)
             Assert.assertEquals(expectedDifference, difference)
-
         }
 
         @ParameterizedTest
@@ -61,7 +100,6 @@ class AppUtilsTest{
         fun differentDaysDifferenceInSecondsTest(first: Date, second: Date, expectedDifference: Int) {
             val difference = AppUtils.differenceInSeconds(first, second)
             Assert.assertEquals(expectedDifference, difference)
-
         }
 
     }
