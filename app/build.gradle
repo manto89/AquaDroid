@@ -4,6 +4,8 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+apply plugin: "de.mannodermaus.android-junit5"
+
 android {
     compileSdkVersion 29
     defaultConfig {
@@ -44,4 +46,7 @@ dependencies {
     implementation 'com.daimajia.easing:library:2.0@aar'
     implementation 'com.daimajia.androidanimations:library:2.3@aar'
     implementation 'com.tbuonomo.andrui:viewpagerdotsindicator:2.1.2'
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.4.1"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.4.1"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:5.4.1"
 }
